@@ -2816,7 +2816,7 @@ function registerObserveFunction(sdk, kv, dedupMap, maxObservationsPerSession) {
 				const synthetic = buildSyntheticCompression(raw);
 				await kv.set(KV.observations(payload.sessionId), obsId, synthetic);
 				getSearchIndex().add(synthetic);
-				try { const vi=getVectorIndex(),ep=getEmbeddingProvider$1(); if(vi&&ep){const narrative=(synthetic.title||"")+" "+(synthetic.narrative||""); const vec=await ep.embed(narrative); vi.add(obsId,payload.sessionId,vec);} } catch(e){console.warn("[agentmemory] vector add error:",e.message);}
+				try { const vi=getVectorIndex(),ep=getEmbeddingProvider$1(); if(vi&&ep){const embedText=synthetic.rawContent||((synthetic.title||"")+" "+(synthetic.narrative||"")); const vec=await ep.embed(embedText); vi.add(obsId,payload.sessionId,vec);} } catch(e){console.warn("[agentmemory] vector add error:",e.message);}
 				try { await sdk.trigger({
 					function_id: "stream::set",
 					payload: {
