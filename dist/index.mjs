@@ -2175,6 +2175,7 @@ var SearchIndex = class SearchIndex {
 			obs.title,
 			obs.subtitle || "",
 			obs.narrative,
+			obs.rawContent || "",
 			...obs.facts,
 			...obs.concepts,
 			...obs.files,
