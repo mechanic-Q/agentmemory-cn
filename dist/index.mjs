@@ -2514,7 +2514,7 @@ async function rebuildIndex(kv) {
 	for (const observations of obsPerSession) for (const obs of observations) if (obs.title && obs.narrative) {
 		idx.add(obs);
 		count++;
-		try { const vi=getVectorIndex(),ep=getEmbeddingProvider$1(); if(vi&&ep&&obs.id&&obs.sessionId){const narrative=(obs.title||"")+" "+(obs.narrative||""); const vec=await ep.embed(narrative); vi.add(obs.id,obs.sessionId,vec);} } catch(e){}
+		try { const vi=getVectorIndex(),ep=getEmbeddingProvider$1(); if(vi&&ep&&obs.id&&obs.sessionId){const embedText=obs.rawContent||((obs.title||"")+" "+(obs.narrative||"")); const vec=await ep.embed(embedText); vi.add(obs.id,obs.sessionId,vec);} } catch(e){}
 	}
 	return count;
 }
