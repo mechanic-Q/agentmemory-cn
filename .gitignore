@@ -1,0 +1,9 @@
+data/
+*.db
+*.db-shm
+*.db-wal
+.env
+*.log
+node_modules/
+.DS_Store
+Xenova-models/
