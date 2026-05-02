@@ -4045,7 +4045,7 @@ function registerCompressFunction(sdk, kv, provider, metricsStore) {
 			};
 			await kv.set(KV.observations(data.sessionId), data.observationId, compressed);
 			getSearchIndex().add(compressed);
-			try { const vi=getVectorIndex(),ep=getEmbeddingProvider$1(); if(vi&&ep){const narrative=(compressed.title||"")+" "+(compressed.narrative||""); const vec=await ep.embed(narrative); vi.add(data.observationId,data.sessionId,vec);} } catch(e){console.warn("[agentmemory] vector add error:",e.message);}
+			try { const vi=getVectorIndex(),ep=getEmbeddingProvider$1(); if(vi&&ep){const embedText=compressed.rawContent||((compressed.title||"")+" "+(compressed.narrative||"")); const vec=await ep.embed(embedText); vi.add(data.observationId,data.sessionId,vec);} } catch(e){console.warn("[agentmemory] vector add error:",e.message);}
 			const streamResults = await Promise.allSettled([sdk.trigger({
 				function_id: "stream::set",
 				payload: {
