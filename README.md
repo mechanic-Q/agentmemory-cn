@@ -87,6 +87,114 @@ systemctl --user enable --now iii-engine.service
 上游更新时需手动对比新版 dist/index.mjs 并重新应用补丁。 | When upstream updates, manually diff the new dist/index.mjs and re-apply patches.
 通用改进（如 smart-search format 参数）通过 PR 回馈上游，以减少未来维护负担。 | Generic improvements (e.g. smart-search format parameter) are contributed back via PR to reduce future maintenance burden.
 
+## 被上游覆盖后如何恢复 | Recovery After Upstream Overwrite
+
+### 场景 | Scenario
+
+你的 `~/.agentmemory/` 是 npm 全局安装目录，以下操作会**整体覆盖**已打补丁的文件： | Your `~/.agentmemory/` is a global npm install directory. These actions will **overwrite** patched files:
+
+```bash
+npx @agentmemory/agentmemory@latest     # 拉取最新 npm 包 | Pull latest npm package
+npm update -g @agentmemory/agentmemory   # 全局更新 | Global update
+# 某些自动化脚本可能触发重装 | Some automation scripts may trigger reinstall
+```
+
+覆盖后，`dist/index.mjs` 退回到上游原始版本（无 CJK 分词、无 bge-m3、无 smart-search format）。 | After overwrite, `dist/index.mjs` reverts to upstream original (no CJK bigram, no bge-m3, no smart-search format).
+
+### 检测 | Detection
+
+```bash
+# 快速检测：看 smart-search 是否还有 format 参数 | Quick check: does smart-search still have format parameter?
+grep 'typeof data.format' ~/.agentmemory/dist/index.mjs
+
+# 有输出 = 补丁还在 | Has output = patches intact
+# 无输出 = 已被覆盖 | No output = overwritten
+
+# 或者检查嵌入模型 | Or check embedding model
+grep 'bge-m3' ~/.agentmemory/dist/index.mjs
+
+# 有输出 = 补丁还在 | Has output = patches intact
+# 无输出 = 已被覆盖 | No output = overwritten
+```
+
+### 恢复方法一：从本仓库直接还原 | Recovery Method 1: Direct Restore from This Repo
+
+适合：没有在本地额外修改 `~/.agentmemory/` 的情况 | For: when you haven't made additional local changes to `~/.agentmemory/`
+
+```bash
+# 拉取本仓库最新版 | Pull latest from this repo
+cd ~/.agentmemory
+git fetch origin main
+git checkout origin/main -- dist/index.mjs dist/image-refs-BfT7XAa-.mjs dist/image-store-Cn9eD-7D.mjs
+
+# 重启服务使改动生效 | Restart services to apply
+systemctl --user restart agentmemory.service
+systemctl --user restart iii-engine.service
+
+# 验证 | Verify
+grep 'bge-m3' ~/.agentmemory/dist/index.mjs && echo "OK: 补丁已恢复 | OK: patches restored"
+```
+
+### 恢复方法二：精确恢复（保留本机配置） | Recovery Method 2: Precision Restore (Preserve Local Config)
+
+适合：`~/.agentmemory/` 里除了补丁文件，还有你的本机配置（iii-config.yaml、.env 等） | For: when `~/.agentmemory/` also has your local config (iii-config.yaml, .env, etc.)
+
+```bash
+cd ~/.agentmemory
+
+# 1. 先把当前状态存个快照，防止误操作 | Snapshot current state first
+git stash
+
+# 2. 从本仓库拉取最新补丁版 | Pull latest patched version from this repo
+git fetch origin main
+
+# 3. 只还原被打补丁的核心文件，不碰你的本机配置 | Only restore patched core files, leave config alone
+git checkout origin/main -- dist/index.mjs
+git checkout origin/main -- dist/image-refs-BfT7XAa-.mjs
+git checkout origin/main -- dist/image-store-Cn9eD-7D.mjs
+
+# 4. 如果你在本机也改过 index.mjs，现在合并 | If you also patched index.mjs locally, merge now
+git stash pop
+
+# 5. 如果 stash pop 有冲突，手动解决后继续 | If stash pop has conflicts, resolve manually then proceed
+# vim dist/index.mjs   # 解决冲突 | resolve conflicts
+# git add dist/index.mjs
+
+# 6. 重启 | Restart
+systemctl --user restart agentmemory.service
+systemctl --user restart iii-engine.service
+```
+
+### 恢复后验证 | Post-Recovery Verification
+
+```bash
+# 运行五项核心检查 | Run five core checks
+echo "=== 1. 嵌入模型 | Embedding model ===" && grep 'bge-m3' ~/.agentmemory/dist/index.mjs | head -1
+echo "=== 2. CJK 分词 | CJK tokenizer ===" && grep '\\u4e00-\\u9fff' ~/.agentmemory/dist/index.mjs | head -1
+echo "=== 3. smart-search format | Smart-search format ===" && grep 'typeof data.format' ~/.agentmemory/dist/index.mjs | head -1
+echo "=== 4. 向量索引 | Vector index ===" && grep 'getVectorIndex' ~/.agentmemory/dist/index.mjs | head -1
+echo "=== 5. 服务状态 | Service status ===" && systemctl --user is-active agentmemory.service iii-engine.service
+
+# 预期：5 项全部有输出且服务 active | Expected: all 5 show output and services are active
+```
+
+### 预防措施 | Prevention
+
+```bash
+# 锁定 agentmemory 版本，防止意外升级 | Pin agentmemory version to prevent accidental upgrade
+npm config set save-exact true
+
+# 如果使用 systemd，确保 service 文件的 ExecStart 指向本仓库的 node 而不是 npx | If using systemd, ensure service ExecStart points to this repo's node, not npx
+# ✅ ExecStart=node /home/lmr/.agentmemory/dist/cli.mjs start
+# ❌ ExecStart=npx @agentmemory/agentmemory      ← 每次启动都可能拉新版本
+
+# 日常更新流程（安全） | Safe daily update flow
+# 1. 先 git pull 本仓库看有没有新版补丁 | First git pull this repo for new patches
+# 2. 再决定要不要同步上游新版 | Then decide whether to sync upstream
+```
+
+---
+
 ## 许可证 | License
 
 Apache-2.0 © 原始项目 rohitg00/agentmemory | Apache-2.0 © original rohitg00/agentmemory
