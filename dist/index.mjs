@@ -2400,6 +2400,7 @@ function buildSyntheticCompression(raw) {
 		subtitle: inputStr ? truncate$2(inputStr, 120) : void 0,
 		facts: [],
 		narrative: truncate$2(narrativeParts.join(" | "), 400),
+		rawContent: narrativeParts.join(" | "),
 		concepts: [],
 		files: extractFiles$1(raw.toolInput),
 		importance: 5,
