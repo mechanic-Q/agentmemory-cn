@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1200" height="400" viewBox="0 0 1200 400"
+     role="img" aria-labelledby="am-title am-desc">
+  <title id="am-title">agentmemory-cn — AI Agent 记忆的中文语义增强版</title>
+  <desc id="am-desc">左侧为项目名与一句话介绍：给 AI Agent 记忆装上中文语义，bge-m3 多语言向量加 CJK 双字分词实现中英混合检索。右侧为一次检索的示意：查询词经 BM25 CJK 双字分词与 bge-m3 向量两路并行召回，命中结果高亮中文关键词。</desc>
+
+  <rect width="1200" height="400" rx="26" fill="#0a0e1a"/>
+
+  <!-- ===== 左：标题块 ===== -->
+  <g id="title-block" transform="translate(64 0)">
+    <text x="0" y="96" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="17" letter-spacing="1.5" fill="#4c8dff">CHINESE SEMANTIC ENHANCED · 基于 agentmemory v0.9.4</text>
+
+    <text x="0" y="168" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="56" font-weight="800" fill="#e8ecf5">agentmemory-cn</text>
+
+    <text x="0" y="220" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="24" fill="#c4cbdc">给 AI Agent 记忆装上中文语义——</text>
+    <text x="0" y="254" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="24" fill="#c4cbdc">bge-m3 向量 + CJK 双字分词，中英混合检索开箱即用。</text>
+
+    <text x="0" y="310" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="17" fill="#8a93ad">1024 维本地 CPU 嵌入 · 无需 GPU · 13 项针对性补丁</text>
+    <text x="0" y="338" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="17" fill="#8a93ad">「人工智能」不再漏检 · HuggingFace 镜像适配国内网络</text>
+  </g>
+
+  <!-- ===== 右：混合检索示意 ===== -->
+  <g id="retrieval-demo">
+    <!-- 查询条 -->
+    <rect x="660" y="56" width="476" height="48" rx="10" fill="#141a2e" stroke="#26304d"/>
+    <text x="680" y="86" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="17" fill="#8a93ad">mem::smart-search <tspan fill="#e8ecf5">"人工智能记忆"</tspan></text>
+
+    <!-- 分叉连线 -->
+    <path d="M 780 104 L 780 128 L 790 128" stroke="#26304d" stroke-width="2" fill="none"/>
+    <path d="M 1016 104 L 1016 128 L 1006 128" stroke="#26304d" stroke-width="2" fill="none"/>
+    <path d="M 784 124 L 780 131 L 776 124" stroke="#26304d" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 1012 124 L 1016 131 L 1020 124" stroke="#26304d" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <!-- 双路：左 BM25 bigram -->
+    <rect x="660" y="136" width="232" height="104" rx="10" fill="#141a2e" stroke="#26304d"/>
+    <text x="680" y="164" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="16" fill="#8a93ad">BM25 全文索引</text>
+    <text x="680" y="192" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="17" fill="#e8ecf5">CJK 双字切分</text>
+    <g font-family="'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif" font-size="16" fill="#4c8dff">
+      <rect x="680" y="204" width="56" height="24" rx="5" fill="#4c8dff" opacity="0.15"/>
+      <text x="708" y="221" text-anchor="middle">人工</text>
+      <rect x="744" y="204" width="56" height="24" rx="5" fill="#4c8dff" opacity="0.15"/>
+      <text x="772" y="221" text-anchor="middle">智能</text>
+      <rect x="808" y="204" width="56" height="24" rx="5" fill="#4c8dff" opacity="0.15"/>
+      <text x="836" y="221" text-anchor="middle">记忆</text>
+    </g>
+
+    <!-- 双路：右 bge-m3 -->
+    <rect x="904" y="136" width="232" height="104" rx="10" fill="#141a2e" stroke="#26304d"/>
+    <text x="924" y="164" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="16" fill="#8a93ad">bge-m3 向量</text>
+    <text x="924" y="192" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="17" fill="#e8ecf5">1024 维 · Q4 · CPU</text>
+    <g fill="#4c8dff">
+      <circle cx="930" cy="216" r="4" opacity="0.9"/>
+      <circle cx="948" cy="212" r="4" opacity="0.55"/>
+      <circle cx="966" cy="219" r="4" opacity="0.75"/>
+      <circle cx="984" cy="210" r="4" opacity="0.4"/>
+      <circle cx="1002" cy="215" r="4" opacity="0.65"/>
+      <circle cx="1020" cy="211" r="4" opacity="0.5"/>
+      <circle cx="1038" cy="218" r="4" opacity="0.8"/>
+      <circle cx="1056" cy="213" r="4" opacity="0.45"/>
+      <circle cx="1074" cy="217" r="4" opacity="0.6"/>
+      <circle cx="1092" cy="211" r="4" opacity="0.35"/>
+    </g>
+
+    <!-- 汇合 -->
+    <path d="M 776 240 L 776 268 L 800 268" stroke="#26304d" stroke-width="2" fill="none"/>
+    <path d="M 1020 240 L 1020 268 L 996 268" stroke="#26304d" stroke-width="2" fill="none"/>
+    <path d="M 794 264 L 801 268 L 794 273" stroke="#26304d" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 1002 264 L 995 268 L 1002 273" stroke="#26304d" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <!-- 结果卡 -->
+    <rect x="660" y="272" width="476" height="84" rx="10" fill="#141a2e" stroke="#26304d"/>
+    <text x="680" y="300" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+          font-size="15" fill="#8a93ad">0.92 · memory-2026-08-12</text>
+    <text x="680" y="332" font-family="'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="18" fill="#c4cbdc">项目采用 <tspan fill="#ff6b6b" font-weight="700">人工</tspan><tspan fill="#ff6b6b" font-weight="700">智能</tspan> 做 <tspan fill="#ff6b6b" font-weight="700">记忆</tspan> 摘要，中文召回准确。</text>
+  </g>
+</svg>
