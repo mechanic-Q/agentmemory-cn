@@ -1,4 +1,20 @@
-# agentmemory-cn | agentmemory-cn
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%" alt="agentmemory-cn：给 AI Agent 记忆装上中文语义——bge-m3 多语言向量加 CJK 双字分词，一次中文查询经 BM25 与向量两路并行召回，中文关键词命中高亮">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/嵌入-bge--m3_1024维_Q4-4c8dff" alt="bge-m3 嵌入，1024 维，Q4 量化">
+  &nbsp;
+  <img src="https://img.shields.io/badge/分词-CJK_Bigram-4c8dff" alt="CJK 双字分词">
+  &nbsp;
+  <img src="https://img.shields.io/badge/运行-本地_CPU_无需_GPU-4c8dff" alt="本地 CPU 运行，无需 GPU">
+  &nbsp;
+  <img src="https://img.shields.io/badge/上游-rohitg00/agentmemory_v0.9.4-8a93ad" alt="基于上游 rohitg00/agentmemory v0.9.4">
+  &nbsp;
+  <img src="https://img.shields.io/badge/License-Apache--2.0-d29922" alt="Apache-2.0 许可">
+</p>
+
+# agentmemory-cn
 
 > 基于 rohitg00/agentmemory v0.9.3 改造的中文语义增强版 | Chinese semantic enhanced fork based on rohitg00/agentmemory v0.9.3
 >
@@ -8,39 +24,37 @@
 
 ## 项目由来 | Project Origin
 
-原项目 [rohitg00/agentmemory](https://github.com/rohitg00/agentmemory) 是为 AI 编程代理设计的持久化记忆引擎，支持 Claude Code、Cursor、Gemini CLI、Hermes、OpenCode 等主流 AI 代理。 | The original [rohitg00/agentmemory](https://github.com/rohitg00/agentmemory) is a persistent memory engine for AI coding agents, supporting Claude Code, Cursor, Gemini CLI, Hermes, OpenCode, etc.
-但其搜索和嵌入层仅针对英文优化（BM25 分词 + all-MiniLM-L6-v2 嵌入模型），中文记忆检索效果差。 | However, its search and embedding layers are optimized only for English (BM25 tokenizer + all-MiniLM-L6-v2 embeddings), resulting in poor Chinese memory retrieval.
-本项目在 v0.9.3 基础上进行了 13 项针对性改造，使其具备中英文混合语义搜索能力。 | This project applies 13 targeted modifications on top of v0.9.3 to enable Chinese-English hybrid semantic search.
+原项目 [rohitg00/agentmemory](https://github.com/rohitg00/agentmemory) 是为 AI 编程代理设计的持久化记忆引擎，支持 Claude Code、Cursor、Gemini CLI、Hermes、OpenCode 等主流 AI 代理。但其搜索和嵌入层仅针对英文优化（BM25 分词 + all-MiniLM-L6-v2 嵌入模型），中文记忆检索效果差。本项目在 v0.9.3 基础上进行了 13 项针对性改造，使其具备中英文混合语义搜索能力。
 
 ---
 
 ## 核心改造 | Core Modifications
 
 ### 1. 嵌入模型升级 | Embedding Model Upgrade
-将 all-MiniLM-L6-v2（384维，英文）替换为 bge-m3（1024维，多语言，Q4 量化） | Replaced all-MiniLM-L6-v2 (384-dim, English-only) with bge-m3 (1024-dim, multilingual, Q4 quantized)
-支持中英文跨语言语义搜索，且无需 GPU，本地 CPU 即可运行 | Enables cross-lingual Chinese-English semantic search, runs on CPU without GPU
-配置了 HuggingFace 镜像端点，适配国内网络环境 | Configured HuggingFace mirror endpoint for China network conditions
+将 all-MiniLM-L6-v2（384维，英文）替换为 bge-m3（1024维，多语言，Q4 量化）
+支持中英文跨语言语义搜索，且无需 GPU，本地 CPU 即可运行
+配置了 HuggingFace 镜像端点，适配国内网络环境
 
 ### 2. CJK 中文分词 | CJK Bigram Tokenization
-在 BM25 全文索引中增加 CJK 二字组（Bigram）分词 | Added CJK bigram tokenization to BM25 full-text index
-覆盖 CJK 统一表意文字区间（U+4E00-U+9FFF, U+3400-U+4DBF, U+F900-U+FAFF） | Covers CJK Unified Ideographs ranges (U+4E00-U+9FFF, U+3400-U+4DBF, U+F900-U+FAFF)
-中文搜索不再漏检，"人工智能"可以命中"人工"和"智能" | Chinese search no longer misses results; "人工智能" can match "人工" and "智能"
+在 BM25 全文索引中增加 CJK 二字组（Bigram）分词
+覆盖 CJK 统一表意文字区间（U+4E00-U+9FFF, U+3400-U+4DBF, U+F900-U+FAFF）
+中文搜索不再漏检，"人工智能"可以命中"人工"和"智能"
 
 ### 3. 向量索引集成 | Vector Index Integration
-将 bge-m3 向量索引集成到观察（observe）、合成（synthetic）、停止（stop）三个关键生命周期 | Integrated bge-m3 vector index into three critical lifecycles: observe, synthetic, and stop
-每个记忆录入时自动生成 1024 维语义向量，无需手动调用 | Auto-generates 1024-dim semantic vectors on every memory ingestion, no manual invocation needed
+将 bge-m3 向量索引集成到观察（observe）、合成（synthetic）、停止（stop）三个关键生命周期
+每个记忆录入时自动生成 1024 维语义向量，无需手动调用
 
 ### 4. 智能搜索格式增强 | Smart-Search Format Enhancement
-为 mem::smart-search 添加 format 参数（full / narrative / compact） | Added format parameter to mem::smart-search (full / narrative / compact)
-与上游 mem::search 的格式体系对齐，支持按需返回不同详细程度的搜索结果 | Aligns with upstream mem::search format system, supports returning results at different detail levels on demand
+为 mem::smart-search 添加 format 参数（full / narrative / compact）
+与上游 mem::search 的格式体系对齐，支持按需返回不同详细程度的搜索结果
 
 ### 5. 稳定性加固 | Stability Hardening
-多处 trigger 调用包裹 try-catch，防止单个 observer 失败导致整个管道崩溃 | Wrapped multiple trigger calls in try-catch to prevent single observer failure from crashing entire pipeline
-内存阈值上调至 98%（原 95%），内存底线提升至 1.5GB（原 512MB），减少误报 | Raised memory critical threshold to 98% (was 95%), RSS floor to 1.5GB (was 512MB), reducing false alarms
-添加 10 秒优雅关闭超时，防止进程僵死 | Added 10-second graceful shutdown timeout to prevent zombie processes
+多处 trigger 调用包裹 try-catch，防止单个 observer 失败导致整个管道崩溃
+内存阈值上调至 98%（原 95%），内存底线提升至 1.5GB（原 512MB），减少误报
+添加 10 秒优雅关闭超时，防止进程僵死
 
 ### 6. iii-sdk 兼容 | iii-sdk Compatibility
-注册 stream::* 桩函数（set/send/get/delete/list/list_groups），满足 iii-sdk 依赖 | Registered stream::* stub functions (set/send/get/delete/list/list_groups) to satisfy iii-sdk dependency
+注册 stream::* 桩函数（set/send/get/delete/list/list_groups），满足 iii-sdk 依赖
 
 ---
 
@@ -83,15 +97,15 @@ systemctl --user enable --now iii-engine.service
 
 ## 上游同步 | Upstream Sync
 
-本仓库是编译产物仓库（非 TS 源码），与上游 rohitg00/agentmemory 的 TS 源码 Fork 分离维护。 | This is a compiled artifact repo (not TS source), maintained separately from the TS source fork of rohitg00/agentmemory.
-上游更新时需手动对比新版 dist/index.mjs 并重新应用补丁。 | When upstream updates, manually diff the new dist/index.mjs and re-apply patches.
-通用改进（如 smart-search format 参数）通过 PR 回馈上游，以减少未来维护负担。 | Generic improvements (e.g. smart-search format parameter) are contributed back via PR to reduce future maintenance burden.
+本仓库是编译产物仓库（非 TS 源码），与上游 rohitg00/agentmemory 的 TS 源码 Fork 分离维护。
+上游更新时需手动对比新版 dist/index.mjs 并重新应用补丁。
+通用改进（如 smart-search format 参数）通过 PR 回馈上游，以减少未来维护负担。
 
 ## 被上游覆盖后如何恢复 | Recovery After Upstream Overwrite
 
 ### 场景 | Scenario
 
-你的 `~/.agentmemory/` 是 npm 全局安装目录，以下操作会**整体覆盖**已打补丁的文件： | Your `~/.agentmemory/` is a global npm install directory. These actions will **overwrite** patched files:
+你的 `~/.agentmemory/` 是 npm 全局安装目录，以下操作会**整体覆盖**已打补丁的文件：
 
 ```bash
 npx @agentmemory/agentmemory@latest     # 拉取最新 npm 包 | Pull latest npm package
@@ -99,7 +113,7 @@ npm update -g @agentmemory/agentmemory   # 全局更新 | Global update
 # 某些自动化脚本可能触发重装 | Some automation scripts may trigger reinstall
 ```
 
-覆盖后，`dist/index.mjs` 退回到上游原始版本（无 CJK 分词、无 bge-m3、无 smart-search format）。 | After overwrite, `dist/index.mjs` reverts to upstream original (no CJK bigram, no bge-m3, no smart-search format).
+覆盖后，`dist/index.mjs` 退回到上游原始版本（无 CJK 分词、无 bge-m3、无 smart-search format）。
 
 ### 检测 | Detection
 
@@ -119,7 +133,7 @@ grep 'bge-m3' ~/.agentmemory/dist/index.mjs
 
 ### 恢复方法一：从本仓库直接还原 | Recovery Method 1: Direct Restore from This Repo
 
-适合：没有在本地额外修改 `~/.agentmemory/` 的情况 | For: when you haven't made additional local changes to `~/.agentmemory/`
+适合：没有在本地额外修改 `~/.agentmemory/` 的情况
 
 ```bash
 # 拉取本仓库最新版 | Pull latest from this repo
@@ -137,7 +151,7 @@ grep 'bge-m3' ~/.agentmemory/dist/index.mjs && echo "OK: 补丁已恢复 | OK: p
 
 ### 恢复方法二：精确恢复（保留本机配置） | Recovery Method 2: Precision Restore (Preserve Local Config)
 
-适合：`~/.agentmemory/` 里除了补丁文件，还有你的本机配置（iii-config.yaml、.env 等） | For: when `~/.agentmemory/` also has your local config (iii-config.yaml, .env, etc.)
+适合：`~/.agentmemory/` 里除了补丁文件，还有你的本机配置（iii-config.yaml、.env 等）
 
 ```bash
 cd ~/.agentmemory
